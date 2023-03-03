@@ -5,7 +5,10 @@ defmodule ReportsGenerator do
     "reports/#{filename}"
     # pipe operator
     |> File.stream!()
-    |> Enum.map(fn line -> parse_line(line) end)
+    |> Enum.reduce(%{}, fn line, report ->
+      [id, _food_name, price] = parse_line(line)
+      Map.put(report, id, price)
+    end)
   end
 
   # pattern matching e sobrecarga
