@@ -1,7 +1,18 @@
 defmodule ReportsGenerator do
   alias ReportsGenerator.Parser
-  # ReportsGenerator.build("report_complete.csv")
 
+  @available_foods [
+    "açaí",
+    "churrasco",
+    "esfirra",
+    "hamburguer",
+    "pastel",
+    "pizza",
+    "prato_feito",
+    "suchi"
+  ]
+
+  # ReportsGenerator.build("report_complete.csv")
   def build(filename) do
     # pipe operator
     filename
@@ -11,8 +22,18 @@ defmodule ReportsGenerator do
 
   def fetch_higher_cost(report), do: Enum.max_by(report, fn {_key, value} -> value end)
 
-  defp sum_values([id, _food_name, price], report), do: Map.put(report, id, report[id] + price)
+  defp sum_values([id, food_name, price], %{"foods" => foods, "users" => users} = report) do
+    users = Map.put(users, id, users[id] + price)
+    foods = Map.put(foods, food_name, foods[food_name] + 1)
 
-  defp report_acc, do: Enum.into(1..30, %{}, &{Integer.to_string(&1), 0})
+    %{report | "users" => users, "foods" => foods}
+  end
+
+  defp report_acc do
+    foods = Enum.into(@available_foods, %{}, &{&1, 0})
+    users = Enum.into(1..30, %{}, &{Integer.to_string(&1), 0})
+
+    %{"users" => users, "foods" => foods}
+  end
 
 end
